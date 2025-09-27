@@ -2,12 +2,26 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsParticipantOfConversation
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import User, Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
 from django.shortcuts import get_object_or_404
+from .permissions import IsOwner
+from .filters import MessageFilter
+from .pagination import CustomPagination
 
+class MessageViewSet(viewsets.ModelViewSet):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MessageFilter
+    pagination_class = CustomPagination
 
+    def get_queryset(self):
+        return Message.objects.filter(conversation__participants=self.request.user)
 class ConversationViewSet(viewsets.ModelViewSet):
     """
     ViewSet for listing and creating conversations with filtering.
@@ -17,6 +31,22 @@ class ConversationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['conversation_id', 'created_at']
+class MessageListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Message.objects.filter(user=self.request.user)
+class MessageViewSet(viewsets.ModelViewSet):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
+
+    def get_queryset(self):
+        # Filter messages to only those in conversations the user participates in
+        return Message.objects.filter(conversation__participants=self.request.user)
+    
+class MessageDetailView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         """

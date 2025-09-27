@@ -17,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
         """
         Validate that the email is unique.
         """
-        if User.objects.filter(email=value).exclude(pk=self.instance.user_id if self.instance else None).exists():
+        if User.objects.filter(email=value).exclude(user_id=self.instance.user_id if self.instance else None).exists():
             raise serializers.ValidationError("A user with this email already exists.")
         return value
 
@@ -41,7 +41,7 @@ class MessageSerializer(serializers.ModelSerializer):
         """
         conversation = data.get('conversation')
         recipient = data.get('recipient')
-        if recipient and conversation and not conversation.participants.filter(pk=recipient.user_id).exists():
+        if recipient and conversation and not conversation.participants.filter(user_id=recipient.user_id).exists():
             raise serializers.ValidationError("Recipient must be a participant in the conversation.")
         return data
 
