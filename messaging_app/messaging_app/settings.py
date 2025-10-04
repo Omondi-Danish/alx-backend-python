@@ -103,3 +103,6 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'user_id',       # Fixes FieldError
     'USER_ID_CLAIM': 'user_id',       # Ensures token uses correct field
 }
+# … other Django settings …
+
+# In-memory cache configuration for development/testing

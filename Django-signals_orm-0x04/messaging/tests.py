@@ -11,7 +11,7 @@ class MessageSignalTests(TestCase):
         self.bob = User.objects.create_user(username='bob', password='pass')
 
     def test_notification_created_on_new_message(self):
-        # No notifications initially
+        # Initially no notifications
         self.assertEqual(Notification.objects.count(), 0)
 
         # Alice sends Bob a message
@@ -21,7 +21,7 @@ class MessageSignalTests(TestCase):
             content="Hello Bob!"
         )
 
-        # One notification should now exist
+        # One notification should exist for Bob
         notifications = Notification.objects.filter(user=self.bob, message=msg)
         self.assertEqual(notifications.count(), 1)
         notification = notifications.first()
@@ -33,7 +33,7 @@ class MessageSignalTests(TestCase):
             receiver=self.bob,
             content="First"
         )
-        # Clear existing notifications
+        # Clear any notifications
         Notification.objects.all().delete()
 
         # Update the message content

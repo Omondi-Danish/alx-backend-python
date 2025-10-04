@@ -4,5 +4,5 @@ class MessagingConfig(AppConfig):
     name = 'messaging'
 
     def ready(self):
-        # import the signals module to ensure signal handlers are connected
+        # Ensures our signal handlers get registered
         import messaging.signals  # noqa
