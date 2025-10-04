@@ -1,19 +1,6 @@
 from django.conf import settings
 from django.db import models
-
-class UnreadMessagesManager(models.Manager):
-    def for_user(self, user):
-        return (
-            self.filter(receiver=user, read=False)
-                .only('id', 'sender', 'content', 'timestamp')
-        )
-
-class MessageQuerySet(models.QuerySet):
-    def with_threads(self):
-        return (
-            self.select_related('sender', 'receiver', 'parent_message')
-                .prefetch_related('replies')
-        )
+from .managers import UnreadMessagesManager
 
 class Message(models.Model):
     sender = models.ForeignKey(
@@ -29,16 +16,16 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)
-    read = models.BooleanField(default=False)  # Track read/unread status
-    parent_message = models.ForeignKey(
-        'self',
+    edited_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.CASCADE,
-        related_name='replies'
+        on_delete=models.SET_NULL,
+        related_name='edited_messages'
     )
+    read = models.BooleanField(default=False)
 
-    objects = MessageQuerySet.as_manager()
+    objects = models.Manager()
     unread = UnreadMessagesManager()
 
     def __str__(self):
