@@ -8,6 +8,14 @@ from .models import Message
 User = get_user_model()
 
 @login_required
+def delete_user(request):
+    """
+    Delete the currently authenticated user and redirect to homepage.
+    """
+    request.user.delete()
+    return redirect('home')
+
+@login_required
 def inbox(request):
     """
     Display unread messages for the logged-in user,
