@@ -24,6 +24,13 @@ class Message(models.Model):
         related_name='edited_messages'
     )
     read = models.BooleanField(default=False)
+    parent_message = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='replies'
+    )
 
     objects = models.Manager()
     unread = UnreadMessagesManager()
